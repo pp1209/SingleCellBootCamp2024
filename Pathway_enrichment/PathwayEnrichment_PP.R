@@ -35,7 +35,7 @@ library(dplyr)           # Load dplyr for data manipulation and transformation
 # # Run UMAP (Uniform Manifold Approximation and Projection) for visualization
 # pbmc <- RunUMAP(pbmc, dims = 1:10) # Perform UMAP dimensionality reduction using the first 10 PCA dimensions
 # DimPlot(pbmc, reduction = "umap", label = TRUE, label.size = 6) # Plot UMAP results with cluster labels
-pbmc <- readRDS("Day4_parsed.rds")
+pbmc <- readRDS("S:/Day4_parsed.rds")
 # # Identify marker genes for each cluster
 pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.1, logfc.threshold = 0.25) # Find marker genes for each cluster with specified thresholds
 pbmc.markers %>% group_by(cluster) %>% top_n(n = 2, wt = avg_log2FC) # For each cluster, select top 2 marker genes based on average log2 fold change
@@ -82,6 +82,7 @@ dotplot(GOclusterplot, font.size = 8) # Plot the GO enrichment results with adju
 KEGGclusterplot <- compareCluster(geneCluster = genelist, fun = "enrichKEGG", pvalueCutoff = 0.05) # Compare KEGG pathway enrichment across clusters
 dotplot(KEGGclusterplot, font.size = 8) # Plot the KEGG enrichment results with adjusted font size
 
+
 # Perform differential expression analysis for cluster 0
 cluster0.markers <- FindMarkers(pbmc, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = FALSE) # Find differentially expressed genes in cluster 0
 
@@ -104,7 +105,8 @@ gse <- gseGO(geneList = gene_list,
              pvalueCutoff = 0.05, # P-value cutoff for significance
              OrgDb = org.Hs.eg.db, 
              pAdjustMethod = "none", # No multiple testing correction
-             verbose = FALSE) # Do not print additional progress information
+             verbose = FALSE, # Do not print additional progress information
+             seed = 42) # Set reproducibility for permutation tests
 
 # Convert GSEA results to readable format
 gse_readble <- setReadable(gse, org.Hs.eg.db, 'ENTREZID') # Convert GSEA results for easy interpretation
@@ -114,7 +116,7 @@ require(DOSE) # Ensure DOSE library is loaded
 dotplot(gse_readble, showCategory = 10, split = ".sign") + facet_grid(.~.sign) # Plot GSEA results with categories and split by sign
 
 
-#goplot(gse_readble) # Plot GSEA results as GO terms
+goplot(gse_readble) # Plot GSEA results as GO terms
 
 # Plot GSEA results again (may be redundant)
-#goplot(gse) # Plot GSEA results (may be redundant if gse_readble is already plotted)
+goplot(gse) # Plot GSEA results (may be redundant if gse_readble is already plotted)
